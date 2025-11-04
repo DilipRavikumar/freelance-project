@@ -1,0 +1,15 @@
+# Ignore build artifacts
+**/target/
+**/target/**
+*.log
+.env
+
+# IDE
+.vscode/
+*.iml
+.idea/
+
+# Docker image layers
+**/node_modules/
+**/.classpath
+**/.project
