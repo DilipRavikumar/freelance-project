@@ -1,22 +1,17 @@
 # Freelance Project - Microservices Setup
 
 This project contains multiple services that work together:
-- Frontend (Angular)
+- Frontend (Angular) - Freelancer registration and management
 - Backend microservices (Spring Boot)
-  - Service A
-  - Service B
+  - Employee Service - Manages freelancer profiles with skills and domains
+  - Additional services for project management (Service A, Service B)
 
 ## Local Development Setup
 
 ### Prerequisites
 - Java 17 JDK
 - Node.js 18+ and npm
-- Docker Desktop
-- Kubernetes cluster (choose one):
-  - Minikube: `minikube start --driver=docker`
-  - Kind: `kind create cluster --name freelance`
-  - Docker Desktop's built-in Kubernetes: Enable in Docker Desktop settings
-- kubectl CLI
+- Docker Desktop and Docker Compose
 
 ### 1. Start Local Development Environment
 
@@ -47,136 +42,28 @@ npm start
 
 Frontend will be available at http://localhost:4200
 
-### 2. Local Docker Build
+### 2. Docker Compose Setup
 
-Build all services:
-
-```cmd
-REM Backend Service A
-cd backend\services\service-a
-mvn clean package -DskipTests
-docker build -t freelance/service-a:dev .
-
-REM Backend Service B
-cd ..\service-b
-mvn clean package -DskipTests
-docker build -t freelance/service-b:dev .
-
-REM Frontend
-cd ..\..\frontend
-docker build -t freelance/frontend:dev .
-```
-
-### 3. Local Kubernetes Deployment
-
-#### 3.1 Load Images into Local Cluster
-
-If using Minikube:
-```cmd
-minikube image load freelance/service-a:dev
-minikube image load freelance/service-b:dev
-minikube image load freelance/frontend:dev
-```
-
-If using Kind:
-```cmd
-kind load docker-image freelance/service-a:dev --name freelance
-kind load docker-image freelance/service-b:dev --name freelance
-kind load docker-image freelance/frontend:dev --name freelance
-```
-
-#### 3.2 Deploy Services
+For running all services together using Docker Compose:
 
 ```cmd
-REM Create namespace
-kubectl apply -f backend/k8s/namespace.yaml
+REM Build and start all services
+docker-compose up --build
 
-REM Deploy backend services
-kubectl apply -f backend/services/service-a/k8s/ -n freelance-backend
-kubectl apply -f backend/services/service-b/k8s/ -n freelance-backend
+REM Start in detached mode
+docker-compose up -d
 
-REM Deploy frontend
-kubectl apply -f frontend/k8s/ -n freelance-backend
+REM View logs
+docker-compose logs -f
+
+REM Stop all services
+docker-compose down
 ```
 
-#### 3.3 Verify Deployment
-
-```cmd
-kubectl get pods,svc -n freelance-backend
-```
-
-#### 3.4 Access Services Locally
-
-Quick testing with port-forward:
-```cmd
-REM Forward backend services
-kubectl port-forward svc/service-a 8080:80 -n freelance-backend
-kubectl port-forward svc/service-b 8081:80 -n freelance-backend
-
-REM Forward frontend
-kubectl port-forward svc/frontend 4200:80 -n freelance-backend
-```
-
-## Production Deployment Steps
-
-### 1. Build Production Images
-
-```cmd
-REM Use unique tags for production (e.g., git hash or version)
-SET VERSION=1.0.0
-
-REM Backend services
-cd backend/services/service-a
-mvn clean package -DskipTests
-docker build -t freelance/service-a:%VERSION% .
-
-cd ../service-b
-mvn clean package -DskipTests
-docker build -t freelance/service-b:%VERSION% .
-
-REM Frontend
-cd ../../frontend
-docker build -t freelance/frontend:%VERSION% .
-```
-
-### 2. Push to Container Registry
-
-```cmd
-REM Replace registry.example.com with your registry
-docker tag freelance/service-a:%VERSION% registry.example.com/freelance/service-a:%VERSION%
-docker tag freelance/service-b:%VERSION% registry.example.com/freelance/service-b:%VERSION%
-docker tag freelance/frontend:%VERSION% registry.example.com/freelance/frontend:%VERSION%
-
-docker push registry.example.com/freelance/service-a:%VERSION%
-docker push registry.example.com/freelance/service-b:%VERSION%
-docker push registry.example.com/freelance/frontend:%VERSION%
-```
-
-### 3. Update Kubernetes Manifests
-
-Update image tags in all k8s/deployment.yaml files to match your registry and version:
-
-```yaml
-spec:
-  containers:
-    - name: service-a
-      image: registry.example.com/freelance/service-a:1.0.0
-```
-
-### 4. Deploy to Production Cluster
-
-```cmd
-REM Assuming kubectl is configured for production cluster
-kubectl create namespace freelance-prod
-
-REM Deploy backend services
-kubectl apply -f backend/k8s/namespace.yaml
-kubectl apply -f backend/services/service-a/k8s/ -n freelance-prod
-kubectl apply -f backend/services/service-b/k8s/ -n freelance-prod
-
-REM Deploy frontend
-kubectl apply -f frontend/k8s/ -n freelance-prod
-```
+Services will be available at:
+- Frontend: http://localhost:4200
+- Service A: http://localhost:8080
+- Service B: http://localhost:8081
 
 ## Service Communication
 
@@ -186,14 +73,14 @@ kubectl apply -f frontend/k8s/ -n freelance-prod
   - Configure Angular environment.ts with service URLs
   - CORS enabled in Spring Boot services for localhost
 
-### Kubernetes (Local/Prod)
+### Docker Compose Environment
 - Service Discovery:
-  - Services communicate using Kubernetes service names
-  - Example URL: http://service-a.freelance-backend.svc.cluster.local
+  - Services communicate using service names defined in docker-compose.yml
+  - Example URL: http://service-a:8080
 - Inter-service communication:
-  - Using Kubernetes ClusterIP services
-  - Service A -> Service B: http://service-b
-  - Frontend -> Backend: Via Ingress/Service
+  - Using Docker Compose network
+  - Service A -> Service B: http://service-b:8081
+  - Frontend -> Backend: Direct HTTP calls
 
 ## Monitoring & Management
 
@@ -203,12 +90,20 @@ kubectl apply -f frontend/k8s/ -n freelance-prod
   - Metrics: http://localhost:8080/actuator/metrics
 - Angular Dev Tools in browser
 
-### Kubernetes
-Monitor deployments:
+### Docker Environment
+Monitor containers:
 ```cmd
-kubectl get pods -n freelance-backend -w
-kubectl logs -f deployment/service-a -n freelance-backend
-kubectl describe pod -l app=service-a -n freelance-backend
+REM View running containers
+docker-compose ps
+
+REM View logs for specific service
+docker-compose logs -f service-a
+docker-compose logs -f service-b
+docker-compose logs -f frontend
+
+REM Container shell access
+docker-compose exec service-a sh
+docker-compose exec service-b sh
 ```
 
 ## Troubleshooting
@@ -219,42 +114,48 @@ kubectl describe pod -l app=service-a -n freelance-backend
    - Verify Java/Node versions
    - Check application.properties/environment.ts configs
 
-### Kubernetes
-1. Pods not running:
+### Docker Environment
+1. Containers not starting:
    ```cmd
-   kubectl describe pod <pod-name> -n freelance-backend
-   kubectl logs <pod-name> -n freelance-backend
+   REM Check container status
+   docker-compose ps
+   
+   REM View service logs
+   docker-compose logs -f service-a
    ```
 
 2. Services not accessible:
-   ```cmd
-   kubectl get endpoints -n freelance-backend
-   kubectl describe svc service-a -n freelance-backend
-   ```
+   - Verify containers are running
+   - Check port mappings in docker-compose.yml
+   - Ensure services are on the same Docker network
 
-3. Image pull issues:
-   - Verify images are loaded (Minikube/Kind)
-   - Check image tags in deployments
-   - Verify registry credentials if using private registry
+3. Build issues:
+   ```cmd
+   REM Rebuild specific service
+   docker-compose build service-a
+   
+   REM Force rebuild all services
+   docker-compose build --no-cache
+   ```
 
 ## Next Steps & Improvements
 
-1. Add Ingress Controller:
-   - Install nginx-ingress
-   - Configure TLS
-   - Set up domain routing
+1. Add Development Tools:
+   - Add hot-reload for Spring Boot services
+   - Configure debugger attachments
+   - Set up dev containers for VSCode
 
 2. Add Monitoring:
-   - Prometheus & Grafana
    - Spring Boot Actuator metrics
    - Angular performance monitoring
+   - Centralized logging (ELK stack)
 
 3. CI/CD Pipeline:
    - GitHub Actions for builds
    - Automated testing
-   - Deployment automation
+   - Container image publishing
 
 4. Security:
    - Add API Gateway
    - Implement authentication
-   - Set up network policies
+   - Set up SSL/TLS

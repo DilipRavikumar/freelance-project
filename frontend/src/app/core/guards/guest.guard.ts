@@ -10,7 +10,7 @@ export const guestGuard: CanActivateFn = () => {
   return authService.isAuthenticated$.pipe(
     map((isAuthenticated) => {
       if (isAuthenticated) {
-        return router.createUrlTree(['/movies']);
+        return router.createUrlTree(['/home']);
       }
       return true;
     })

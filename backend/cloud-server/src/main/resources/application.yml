@@ -1,0 +1,52 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: cloud-server
+  cloud:
+    config:
+      enabled: false
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+
+eureka:
+  server:
+    port: 8761
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  cloud:
+    config:
+      enabled: false
+  zipkin:
+    base-url: http://zipkin:9411
+
+eureka:
+  instance:
+    hostname: cloud-server
+  client:
+    service-url:
+      defaultZone: http://cloud-server:8761/eureka/

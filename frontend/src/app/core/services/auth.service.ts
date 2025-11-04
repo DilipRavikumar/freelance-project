@@ -38,12 +38,30 @@ export class AuthService {
     }
   }
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/login', credentials);
+  login(email: string, password: string): Observable<any> {
+    return new Observable(observer => {
+      this.apiService.get<any[]>('/api/employees').subscribe({
+        next: (employees) => {
+          const user = employees.find(emp => emp.email === email);
+          if (user) {
+            const mockUser = { id: user.employeeId, email: user.email, role: Role.USER };
+            this.storageService.setToken('mock-jwt-token');
+            this.storageService.setUser(mockUser);
+            this.currentUserSubject.next(mockUser);
+            this.isAuthenticatedSubject.next(true);
+            observer.next(mockUser);
+            observer.complete();
+          } else {
+            observer.error({ message: 'Invalid credentials' });
+          }
+        },
+        error: () => observer.error({ message: 'Login failed' })
+      });
+    });
   }
 
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', userData);
+  register(employeeData: any): Observable<any> {
+    return this.apiService.post('/api/employees', employeeData);
   }
 
   logout(): void {
@@ -53,16 +71,13 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
+  getCurrentUser(): any {
+    return this.storageService.getUser();
+  }
+
   private decodeToken(token: string): User {
-    try {
-      const decodedToken: any = jwtDecode(token);
-      return {
-        role: decodedToken.role,
-        id: decodedToken.sub,
-      };
-    } catch (error) {
-      throw new Error('Invalid token');
-    }
+    const user = this.storageService.getUser();
+    return user || { role: Role.USER, id: 1 };
   }
 
   public hasRole(role: Role): boolean {

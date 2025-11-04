@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: '/api/v1', // Use relative path for Nginx proxy
+  apiUrl: 'http://employee-service:8080/api',
+  employeeServiceUrl: 'http://employee-service:8080'
 };
