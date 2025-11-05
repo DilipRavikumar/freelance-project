@@ -2,6 +2,11 @@ package com.example.employee.controller;
 
 import com.example.employee.dto.EmployeeDTO;
 import com.example.employee.service.EmployeeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +20,39 @@ import java.util.List;
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Employee Management", description = "APIs for managing freelancers and their information")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
     @GetMapping
+    @Operation(summary = "Get all freelancers", description = "Retrieve a list of all registered freelancers")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved list of freelancers")
+    })
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long id) {
+    @Operation(summary = "Get freelancer by ID", description = "Retrieve a specific freelancer by their ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelancer"),
+        @ApiResponse(responseCode = "404", description = "Freelancer not found")
+    })
+    public ResponseEntity<EmployeeDTO> getEmployeeById(
+            @Parameter(description = "ID of the freelancer to retrieve") @PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+    @Operation(summary = "Register new freelancer", description = "Create a new freelancer profile with skills and domain")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Freelancer successfully registered"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
+    public ResponseEntity<EmployeeDTO> createEmployee(
+            @Parameter(description = "Freelancer data to register") @Valid @RequestBody EmployeeDTO employeeDTO) {
         return new ResponseEntity<>(employeeService.createEmployee(employeeDTO), HttpStatus.CREATED);
     }
 
@@ -58,12 +80,22 @@ public class EmployeeController {
     }
 
     @GetMapping("/freelancers/domain/{domain}")
-    public ResponseEntity<List<EmployeeDTO>> getFreelancersByDomain(@PathVariable String domain) {
+    @Operation(summary = "Find freelancers by domain", description = "Get all freelancers working in a specific domain")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelancers by domain")
+    })
+    public ResponseEntity<List<EmployeeDTO>> getFreelancersByDomain(
+            @Parameter(description = "Domain to search for (e.g., Web Development, Data Science)") @PathVariable String domain) {
         return ResponseEntity.ok(employeeService.getFreelancersByDomain(domain));
     }
 
     @GetMapping("/freelancers/skills/{skills}")
-    public ResponseEntity<List<EmployeeDTO>> getFreelancersBySkills(@PathVariable String skills) {
+    @Operation(summary = "Find freelancers by skills", description = "Search freelancers who have specific skills")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelancers by skills")
+    })
+    public ResponseEntity<List<EmployeeDTO>> getFreelancersBySkills(
+            @Parameter(description = "Skill to search for (e.g., JavaScript, Python)") @PathVariable String skills) {
         return ResponseEntity.ok(employeeService.getFreelancersBySkills(skills));
     }
 }
