@@ -70,7 +70,7 @@ export class LoginComponent {
     private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
-      email: ['john.doe@company.com', [Validators.required, Validators.email]],
+      email: ['john.doe@freelance.com', [Validators.required, Validators.email]],
       password: ['password123', [Validators.required, Validators.minLength(6)]],
     });
   }

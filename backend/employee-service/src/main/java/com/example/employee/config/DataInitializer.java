@@ -22,14 +22,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Clear existing data and repopulate with freelancer data
-        employeeRepository.deleteAll();
-        skillsRepository.deleteAll();
-        
-        // Create skills first
-        createSkills();
-        
-        if (true) { // Always populate with new data
+        // Only populate if database is empty
+        if (employeeRepository.count() == 0) {
+            // Create skills first
+            createSkills();
             Employee emp1 = new Employee();
             emp1.setFirstName("John");
             emp1.setLastName("Doe");

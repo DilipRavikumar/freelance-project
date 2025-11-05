@@ -1,64 +1,15 @@
+version: '3.8'
 services:
-  cloud-server:
-    build:
-      context: ./backend/cloud-server
-      dockerfile: Dockerfile
-    container_name: freelance-cloud-server
+  frontend:
+    build: ./frontend
     ports:
-      - "8888:8888"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    volumes:
-      - ./backend/cloud-server:/app
-      - ./backend/common-config:/common-config
-      - maven-cache:/root/.m2
-    networks:
-      - freelance-network
-
+      - "4200:4200"
+    depends_on:
+      - employee-service
+      
   employee-service:
-    build:
-      context: ./backend/employee-service
-      dockerfile: Dockerfile
-    container_name: freelance-employee-service
+    build: ./backend/employee-service
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/employee_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=admin
-    networks:
-      - freelance-network
-    depends_on:
-      - cloud-server
-
-  zipkin:
-    image: openzipkin/zipkin
-    container_name: freelance-zipkin
-    ports:
-      - "9411:9411"
-    networks:
-      - freelance-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: freelance-frontend
-    ports:
-      - "4200:4200"
-    networks:
-      - freelance-network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - employee-service
-
-networks:
-  freelance-network:
-    driver: bridge
-
-volumes:
-  maven-cache:
-    driver: local

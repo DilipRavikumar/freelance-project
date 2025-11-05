@@ -1,12 +1,9 @@
-# Development-optimized Dockerfile for employee-service
-FROM maven:3.8.8-eclipse-temurin-21
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
 
-COPY src ./src
-RUN mvn package -DskipTests
+COPY target/employee-service-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
-CMD ["mvn", "spring-boot:run"]
+
+CMD ["java", "-jar", "app.jar"]
