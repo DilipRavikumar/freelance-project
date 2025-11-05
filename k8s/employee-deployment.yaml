@@ -15,8 +15,18 @@ spec:
       containers:
       - name: employee-service
         image: employee-service:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/Freelance?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "admin"
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
 ---
 apiVersion: v1
 kind: Service
