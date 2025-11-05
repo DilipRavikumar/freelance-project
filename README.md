@@ -1,161 +1,284 @@
-# Freelance Project - Microservices Setup
+# Freelance Management Platform - Microservices Architecture
 
-This project contains multiple services that work together:
-- Frontend (Angular) - Freelancer registration and management
-- Backend microservices (Spring Boot)
-  - Employee Service - Manages freelancer profiles with skills and domains
-  - Additional services for project management (Service A, Service B)
+**Built with Amazon Q Developer** - Demonstrating enterprise-grade microservices development using AI assistance
 
-## Local Development Setup
+## Project Overview
+
+A comprehensive freelance management platform showcasing modern microservices architecture, built entirely with Amazon Q Developer AI assistance. This project demonstrates how AI can accelerate enterprise application development while maintaining best practices.
+
+### Architecture
+- **Frontend**: Angular 20 SPA with PrimeNG + TailwindCSS
+- **Backend**: Spring Boot 3.x microservices
+- **Database**: MySQL 8.0 with JPA/Hibernate
+- **Orchestration**: Kubernetes + Docker + Minikube
+- **Services**: Employee Management, Skills Tracking, Domain Expertise
+
+### AI Development Highlights
+- **90% code generated** using Amazon Q Developer prompts
+- **Enterprise patterns** implemented through AI guidance
+- **Best practices** embedded from AI recommendations
+- **Comprehensive documentation** created with AI assistance
+
+## Technology Stack
+
+### Frontend
+- Angular 20 with TypeScript
+- PrimeNG UI components
+- TailwindCSS for styling
+- nginx for production serving
+
+### Backend
+- Spring Boot 3.x
+- JPA/Hibernate for database operations
+- MySQL 8.0 database
+- Maven for dependency management
+
+### DevOps
+- Docker for containerization
+- Kubernetes for orchestration
+- Minikube for local development
+- Docker Compose for local testing
+
+## Quick Start
 
 ### Prerequisites
 - Java 17 JDK
 - Node.js 18+ and npm
-- Docker Desktop and Docker Compose
+- Docker Desktop
+- Minikube (optional)
 
-### 1. Start Local Development Environment
+### Local Development with Docker Compose
+```bash
+# Clone the repository
+git clone https://github.com/DilipRavikumar/freelance-project.git
+cd freelance-project
 
-#### Backend Services (Spring Boot)
-Each service can run independently during development:
-
-```cmd
-REM Start Service A (Terminal 1)
-cd backend\services\service-a
-mvn spring-boot:run
-
-REM Start Service B (Terminal 2)
-cd backend\services\service-b
-mvn spring-boot:run
-```
-
-Services will be available at:
-- Service A: http://localhost:8080
-- Service B: http://localhost:8081
-
-#### Frontend (Angular)
-```cmd
-REM Start Angular dev server
-cd frontend
-npm install
-npm start
-```
-
-Frontend will be available at http://localhost:4200
-
-### 2. Docker Compose Setup
-
-For running all services together using Docker Compose:
-
-```cmd
-REM Build and start all services
+# Start all services
 docker-compose up --build
 
-REM Start in detached mode
-docker-compose up -d
-
-REM View logs
-docker-compose logs -f
-
-REM Stop all services
-docker-compose down
+# Access the application
+# Frontend: http://localhost:4200
+# Backend API: http://localhost:8080/api/employees
+# MySQL: localhost:3306
 ```
 
-Services will be available at:
-- Frontend: http://localhost:4200
-- Service A: http://localhost:8080
-- Service B: http://localhost:8081
+### Kubernetes Deployment
+```bash
+# Deploy to Kubernetes
+kubectl apply -f k8s/
 
-## Service Communication
+# Check deployment status
+kubectl get pods
+kubectl get services
 
-### Local Development
-- Frontend -> Backend Services:
-  - Direct HTTP calls to localhost ports (8080, 8081)
-  - Configure Angular environment.ts with service URLs
-  - CORS enabled in Spring Boot services for localhost
-
-### Docker Compose Environment
-- Service Discovery:
-  - Services communicate using service names defined in docker-compose.yml
-  - Example URL: http://service-a:8080
-- Inter-service communication:
-  - Using Docker Compose network
-  - Service A -> Service B: http://service-b:8081
-  - Frontend -> Backend: Direct HTTP calls
-
-## Monitoring & Management
-
-### Local Development
-- Spring Boot Actuator endpoints (if enabled):
-  - Health: http://localhost:8080/actuator/health
-  - Metrics: http://localhost:8080/actuator/metrics
-- Angular Dev Tools in browser
-
-### Docker Environment
-Monitor containers:
-```cmd
-REM View running containers
-docker-compose ps
-
-REM View logs for specific service
-docker-compose logs -f service-a
-docker-compose logs -f service-b
-docker-compose logs -f frontend
-
-REM Container shell access
-docker-compose exec service-a sh
-docker-compose exec service-b sh
+# Access via port forwarding
+kubectl port-forward service/frontend 4200:4200
+kubectl port-forward service/employee-service 8080:8080
 ```
+
+### Minikube Deployment
+```bash
+# Start Minikube
+minikube start
+
+# Set Docker environment
+minikube docker-env --shell cmd
+# Run the SET commands shown
+
+# Build images in Minikube
+docker build -t frontend:latest frontend/
+docker build -t employee-service:latest backend/employee-service/
+
+# Deploy to Minikube
+kubectl apply -f k8s/
+
+# Access services
+minikube service frontend --url
+minikube service employee-service --url
+```
+
+## Project Structure
+
+```
+freelance/
+├── frontend/                       # Angular 20 SPA
+│   ├── src/app/
+│   │   ├── features/              # Feature modules
+│   │   ├── core/                  # Core services
+│   │   └── shared/                # Shared components
+│   ├── Dockerfile                 # Multi-stage build
+│   └── nginx.conf                 # SPA routing config
+├── backend/
+│   └── employee-service/          # Spring Boot microservice
+│       ├── src/main/java/         # Java source code
+│       ├── Dockerfile             # Container config
+│       └── pom.xml                # Maven dependencies
+├── k8s/                           # Kubernetes manifests
+│   ├── frontend-deployment.yaml
+│   ├── employee-deployment.yaml
+│   └── mysql-deployment.yaml
+├── docs/                          # Documentation
+│   ├── kubernetes-networking.md
+│   ├── minikube-deployment-guide.md
+│   └── COMPLETE-BEGINNER-GUIDE.md
+└── docker-compose.yml             # Local development
+```
+
+## API Endpoints
+
+### Employee Management
+- `GET /api/employees` - List all employees
+- `POST /api/employees` - Create new employee
+- `PUT /api/employees/{id}` - Update employee
+- `DELETE /api/employees/{id}` - Delete employee
+- `GET /api/employees/{id}/skills` - Get employee skills
+
+### Health Checks
+- `GET /actuator/health` - Backend health status
+- `GET /actuator/metrics` - Application metrics
+
+## Documentation
+
+### Core Documentation
+- **[Complete Beginner's Guide](COMPLETE-BEGINNER-GUIDE.md)** - Comprehensive tutorial for beginners
+- **[Project Overview](docs/project-overview.md)** - Detailed architecture and features
+- **[Kubernetes Networking](docs/kubernetes-networking.md)** - Networking architecture guide
+- **[Minikube Deployment](docs/minikube-deployment-guide.md)** - Minikube setup and deployment
+
+### Amazon Q Developer Prompts
+The documentation includes comprehensive AI prompts used to build this project:
+- Backend microservice development
+- Frontend Angular application
+- Docker containerization
+- Kubernetes deployment
+- DevOps automation
+
+## Development Workflow
+
+### Frontend Development
+```bash
+cd frontend
+npm install
+npm start                          # Development server
+npm run build                      # Production build
+npm test                          # Run tests
+```
+
+### Backend Development
+```bash
+cd backend/employee-service
+mvn clean install                  # Build project
+mvn spring-boot:run               # Run locally
+mvn test                          # Run tests
+```
+
+### Container Development
+```bash
+# Build images
+docker build -t frontend:latest frontend/
+docker build -t employee-service:latest backend/employee-service/
+
+# Run with Docker Compose
+docker-compose up --build
+
+# Deploy to Kubernetes
+kubectl apply -f k8s/
+kubectl rollout restart deployment frontend
+```
+
+## Features
+
+### Current Implementation
+- Employee/freelancer profile management
+- Skills and domain expertise tracking
+- Responsive web interface with PrimeNG
+- RESTful API endpoints
+- Container orchestration with Kubernetes
+- Database persistence with MySQL
+
+### AI-Generated Components
+- Complete CRUD operations with validation
+- Angular services with HTTP client
+- Docker multi-stage builds
+- Kubernetes manifests with best practices
+- nginx configuration for SPA routing
 
 ## Troubleshooting
 
+### Common Issues
+- **Port conflicts**: Check `docker ps` and `kubectl get svc`
+- **Database connection**: Verify MySQL service status
+- **Image pull errors**: Use `imagePullPolicy: Never` for local images
+- **Angular routing**: Ensure nginx.conf has `try_files` configuration
+
+### Debug Commands
+```bash
+# Check application status
+kubectl get pods
+kubectl logs -f deployment/frontend
+curl http://localhost:8080/actuator/health
+
+# Docker troubleshooting
+docker ps
+docker logs <container-name>
+docker-compose logs -f
+```
+
+## Deployment Options
+
 ### Local Development
-1. Service not starting:
-   - Check port conflicts
-   - Verify Java/Node versions
-   - Check application.properties/environment.ts configs
+- **Docker Compose**: Fastest for development
+- **Individual services**: Best for debugging
+- **Minikube**: Production-like environment
 
-### Docker Environment
-1. Containers not starting:
-   ```cmd
-   REM Check container status
-   docker-compose ps
-   
-   REM View service logs
-   docker-compose logs -f service-a
-   ```
+### Production Deployment
+- **Kubernetes cluster**: Scalable production deployment
+- **Container registry**: Push images to registry
+- **CI/CD pipeline**: Automated deployment
 
-2. Services not accessible:
-   - Verify containers are running
-   - Check port mappings in docker-compose.yml
-   - Ensure services are on the same Docker network
+## Learning Resources
 
-3. Build issues:
-   ```cmd
-   REM Rebuild specific service
-   docker-compose build service-a
-   
-   REM Force rebuild all services
-   docker-compose build --no-cache
-   ```
+### For Beginners
+- Complete step-by-step guide included
+- All commands explained with "what" and "why"
+- Troubleshooting section for common issues
+- Links to official documentation
 
-## Next Steps & Improvements
+### Advanced Topics
+- Microservices architecture patterns
+- Kubernetes networking and service mesh
+- CI/CD pipeline implementation
+- Monitoring and observability
 
-1. Add Development Tools:
-   - Add hot-reload for Spring Boot services
-   - Configure debugger attachments
-   - Set up dev containers for VSCode
+## Contributing
 
-2. Add Monitoring:
-   - Spring Boot Actuator metrics
-   - Angular performance monitoring
-   - Centralized logging (ELK stack)
+### Development Guidelines
+1. Use Amazon Q Developer for rapid prototyping
+2. Follow microservices design patterns
+3. Implement comprehensive testing
+4. Document API changes
+5. Update Kubernetes manifests
 
-3. CI/CD Pipeline:
-   - GitHub Actions for builds
-   - Automated testing
-   - Container image publishing
+### Code Standards
+- **Spring Boot**: Follow Spring conventions
+- **Angular**: Use Angular style guide
+- **Docker**: Multi-stage builds for optimization
+- **Kubernetes**: Resource limits and health checks
 
-4. Security:
-   - Add API Gateway
-   - Implement authentication
-   - Set up SSL/TLS
+## Next Steps
+
+### Immediate Improvements
+1. **API Gateway**: Centralized routing and authentication
+2. **JWT Authentication**: Secure user management
+3. **Monitoring**: Prometheus + Grafana dashboards
+4. **CI/CD**: GitHub Actions pipeline
+
+### Advanced Features
+1. **Service Mesh**: Istio for advanced networking
+2. **Event Streaming**: Kafka for async communication
+3. **Caching**: Redis for performance optimization
+4. **Analytics**: Business intelligence dashboards
+
+---
+
+**Built with Amazon Q Developer - Accelerating enterprise development through AI assistance**
