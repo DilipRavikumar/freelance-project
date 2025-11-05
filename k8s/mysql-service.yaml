@@ -13,15 +13,3 @@ spec:
     targetPort: 3306
     protocol: TCP
   type: ClusterIP
----
-apiVersion: v1
-kind: Endpoints
-metadata:
-  name: mysql-service
-subsets:
-- addresses:
-  - ip: mysql
-  ports:
-  - name: mysql-port
-    port: 3306
-    protocol: TCP
